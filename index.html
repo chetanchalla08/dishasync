@@ -33,7 +33,7 @@
 
     <section class="card">
       <h2>2. Style Preferences</h2>
-      <p class="hint">These don't affect anything yet — we'll wire them up in a later phase.</p>
+      <p class="hint">These shape the tone, length, and formality of the generated follow-up email.</p>
 
       <div class="preferences-grid">
         <div class="field">
@@ -86,7 +86,15 @@
       <ul id="result-questions"></ul>
 
       <h3>Follow-up Email Draft</h3>
-      <textarea id="result-email" rows="10" readonly></textarea>
+      <textarea id="result-email" rows="10"></textarea>
+
+      <div class="results-actions">
+        <button id="copy-btn" type="button" class="btn-secondary">Copy</button>
+        <button id="save-btn" type="button" class="btn-secondary">Save Draft Locally</button>
+        <button id="regenerate-btn" type="button" class="btn-secondary">Regenerate</button>
+      </div>
+
+      <p id="save-status" class="status-message" hidden></p>
     </section>
   </main>
 

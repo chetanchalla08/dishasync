@@ -154,3 +154,23 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.btn-secondary {
+  align-self: auto;
+  background: #fff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+  background: #eef2ff;
+}

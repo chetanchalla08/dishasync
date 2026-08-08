@@ -1,5 +1,13 @@
+const STORAGE_KEY = "dishasync_draft";
+
 const generateBtn = document.getElementById("generate-btn");
+const regenerateBtn = document.getElementById("regenerate-btn");
+const copyBtn = document.getElementById("copy-btn");
+const saveBtn = document.getElementById("save-btn");
+
 const statusMessage = document.getElementById("status-message");
+const saveStatus = document.getElementById("save-status");
+
 const transcriptField = document.getElementById("transcript");
 const resultsSection = document.getElementById("results");
 
@@ -19,6 +27,11 @@ function showStatus(message, isError = false) {
   statusMessage.classList.toggle("error", isError);
 }
 
+function showSaveStatus(message) {
+  saveStatus.textContent = message;
+  saveStatus.hidden = false;
+}
+
 function fillList(listEl, items) {
   listEl.innerHTML = "";
   (items || []).forEach((item) => {
@@ -26,6 +39,23 @@ function fillList(listEl, items) {
     li.textContent = item;
     listEl.appendChild(li);
   });
+}
+
+function getPreferences() {
+  return {
+    tone: toneField.value,
+    length: lengthField.value,
+    formality: formalityField.value,
+  };
+}
+
+function applyResults(data) {
+  summaryEl.textContent = data.summary || "";
+  fillList(decisionsEl, data.decisions);
+  fillList(actionsEl, data.actionItems);
+  fillList(questionsEl, data.openQuestions);
+  emailEl.value = data.followUpEmail || "";
+  resultsSection.hidden = false;
 }
 
 async function handleGenerate() {
@@ -38,21 +68,15 @@ async function handleGenerate() {
   }
 
   generateBtn.disabled = true;
+  regenerateBtn.disabled = true;
+  saveStatus.hidden = true;
   showStatus("Analyzing transcript...");
-  resultsSection.hidden = true;
 
   try {
     const response = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        transcript,
-        preferences: {
-          tone: toneField.value,
-          length: lengthField.value,
-          formality: formalityField.value,
-        },
-      }),
+      body: JSON.stringify({ transcript, preferences: getPreferences() }),
     });
 
     const data = await response.json();
@@ -61,19 +85,70 @@ async function handleGenerate() {
       throw new Error(data.error || "Something went wrong.");
     }
 
-    summaryEl.textContent = data.summary || "";
-    fillList(decisionsEl, data.decisions);
-    fillList(actionsEl, data.actionItems);
-    fillList(questionsEl, data.openQuestions);
-    emailEl.value = data.followUpEmail || "";
-
-    resultsSection.hidden = false;
+    applyResults(data);
     statusMessage.hidden = true;
   } catch (err) {
     showStatus(err.message, true);
   } finally {
     generateBtn.disabled = false;
+    regenerateBtn.disabled = false;
   }
 }
 
+function handleCopy() {
+  navigator.clipboard
+    .writeText(emailEl.value)
+    .then(() => showSaveStatus("Email copied to clipboard."))
+    .catch(() => showSaveStatus("Couldn't copy — select and copy the text manually."));
+}
+
+function handleSave() {
+  const draft = {
+    savedAt: new Date().toISOString(),
+    transcript: transcriptField.value,
+    meetingLink: document.getElementById("meeting-link").value,
+    preferences: getPreferences(),
+    results: {
+      summary: summaryEl.textContent,
+      decisions: Array.from(decisionsEl.querySelectorAll("li")).map((li) => li.textContent),
+      actionItems: Array.from(actionsEl.querySelectorAll("li")).map((li) => li.textContent),
+      openQuestions: Array.from(questionsEl.querySelectorAll("li")).map((li) => li.textContent),
+      followUpEmail: emailEl.value,
+    },
+  };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  showSaveStatus(`Draft saved locally at ${new Date(draft.savedAt).toLocaleTimeString()}.`);
+}
+
+function restoreSavedDraft() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  let draft;
+  try {
+    draft = JSON.parse(raw);
+  } catch {
+    return;
+  }
+
+  transcriptField.value = draft.transcript || "";
+  document.getElementById("meeting-link").value = draft.meetingLink || "";
+  if (draft.preferences) {
+    toneField.value = draft.preferences.tone || toneField.value;
+    lengthField.value = draft.preferences.length || lengthField.value;
+    formalityField.value = draft.preferences.formality || formalityField.value;
+  }
+  if (draft.results) {
+    applyResults(draft.results);
+  }
+
+  showSaveStatus(`Restored your draft saved at ${new Date(draft.savedAt).toLocaleString()}.`);
+}
+
 generateBtn.addEventListener("click", handleGenerate);
+regenerateBtn.addEventListener("click", handleGenerate);
+copyBtn.addEventListener("click", handleCopy);
+saveBtn.addEventListener("click", handleSave);
+
+restoreSavedDraft();
