@@ -69,6 +69,25 @@
     <button id="generate-btn" type="button">Generate Summary &amp; Draft</button>
 
     <p id="status-message" class="status-message" hidden></p>
+
+    <section id="results" class="card" hidden>
+      <h2>Results</h2>
+
+      <h3>Summary</h3>
+      <p id="result-summary"></p>
+
+      <h3>Decisions</h3>
+      <ul id="result-decisions"></ul>
+
+      <h3>Action Items</h3>
+      <ul id="result-actions"></ul>
+
+      <h3>Open Questions</h3>
+      <ul id="result-questions"></ul>
+
+      <h3>Follow-up Email Draft</h3>
+      <textarea id="result-email" rows="10" readonly></textarea>
+    </section>
   </main>
 
   <script src="app.js"></script>
