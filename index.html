@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DishaSync</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>DishaSync</h1>
+    <p class="tagline">Your AI workplace brain — starting simple.</p>
+  </header>
+
+  <main class="app-shell">
+    <section class="card">
+      <h2>1. Meeting Input</h2>
+
+      <label for="meeting-link">Meeting link <span class="hint">(optional for now)</span></label>
+      <input
+        type="url"
+        id="meeting-link"
+        placeholder="Paste a Zoom, Google Meet, or Teams link"
+      />
+
+      <label for="transcript">Transcript</label>
+      <textarea
+        id="transcript"
+        rows="10"
+        placeholder="Paste your meeting transcript here..."
+      ></textarea>
+    </section>
+
+    <section class="card">
+      <h2>2. Style Preferences</h2>
+      <p class="hint">These don't affect anything yet — we'll wire them up in a later phase.</p>
+
+      <div class="preferences-grid">
+        <div class="field">
+          <label for="tone">Tone</label>
+          <select id="tone">
+            <option value="professional">Professional</option>
+            <option value="friendly">Friendly</option>
+            <option value="direct">Direct</option>
+            <option value="concise">Concise</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="length">Length</label>
+          <select id="length">
+            <option value="short">Short</option>
+            <option value="medium" selected>Medium</option>
+            <option value="detailed">Detailed</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="formality">Formality</label>
+          <select id="formality">
+            <option value="casual">Casual</option>
+            <option value="neutral" selected>Neutral</option>
+            <option value="formal">Formal</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <button id="generate-btn" type="button">Generate Summary &amp; Draft</button>
+
+    <p id="status-message" class="status-message" hidden></p>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
