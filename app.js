@@ -1,4 +1,5 @@
 const STORAGE_KEY = "dishasync_draft";
+const PREFS_KEY = "dishasync_preferences";
 
 const generateBtn = document.getElementById("generate-btn");
 const regenerateBtn = document.getElementById("regenerate-btn");
@@ -47,6 +48,26 @@ function getPreferences() {
     length: lengthField.value,
     formality: formalityField.value,
   };
+}
+
+function savePreferences() {
+  localStorage.setItem(PREFS_KEY, JSON.stringify(getPreferences()));
+}
+
+function restorePreferences() {
+  const raw = localStorage.getItem(PREFS_KEY);
+  if (!raw) return;
+
+  let prefs;
+  try {
+    prefs = JSON.parse(raw);
+  } catch {
+    return;
+  }
+
+  toneField.value = prefs.tone || toneField.value;
+  lengthField.value = prefs.length || lengthField.value;
+  formalityField.value = prefs.formality || formalityField.value;
 }
 
 function applyResults(data) {
@@ -151,4 +172,9 @@ regenerateBtn.addEventListener("click", handleGenerate);
 copyBtn.addEventListener("click", handleCopy);
 saveBtn.addEventListener("click", handleSave);
 
+toneField.addEventListener("change", savePreferences);
+lengthField.addEventListener("change", savePreferences);
+formalityField.addEventListener("change", savePreferences);
+
+restorePreferences();
 restoreSavedDraft();
