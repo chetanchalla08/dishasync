@@ -16,12 +16,14 @@
     <section class="card">
       <h2>1. Meeting Input</h2>
 
-      <label for="meeting-link">Meeting link <span class="hint">(optional for now)</span></label>
+      <label for="meeting-link">Meeting link <span class="hint">(optional)</span></label>
       <input
         type="url"
         id="meeting-link"
         placeholder="Paste a Zoom, Google Meet, or Teams link"
       />
+      <p id="link-detection" class="hint" hidden></p>
+      <p class="hint">We can't fetch transcripts automatically yet — paste yours below.</p>
 
       <label for="transcript">Transcript</label>
       <textarea

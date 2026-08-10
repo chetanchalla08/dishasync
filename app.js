@@ -11,6 +11,8 @@ const saveStatus = document.getElementById("save-status");
 
 const transcriptField = document.getElementById("transcript");
 const resultsSection = document.getElementById("results");
+const meetingLinkField = document.getElementById("meeting-link");
+const linkDetectionEl = document.getElementById("link-detection");
 
 const toneField = document.getElementById("tone");
 const lengthField = document.getElementById("length");
@@ -70,6 +72,40 @@ function restorePreferences() {
   formalityField.value = prefs.formality || formalityField.value;
 }
 
+function detectPlatform(url) {
+  let hostname;
+  try {
+    hostname = new URL(url).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+
+  if (hostname.includes("zoom.us")) return "Zoom";
+  if (hostname.includes("meet.google.com")) return "Google Meet";
+  if (hostname.includes("teams.microsoft.com") || hostname.includes("teams.live.com")) return "Microsoft Teams";
+  return "unrecognized";
+}
+
+function handleLinkInput() {
+  const url = meetingLinkField.value.trim();
+
+  if (!url) {
+    linkDetectionEl.hidden = true;
+    return;
+  }
+
+  const platform = detectPlatform(url);
+
+  if (platform === null) {
+    linkDetectionEl.textContent = "That doesn't look like a valid link — it'll still be saved as text.";
+  } else if (platform === "unrecognized") {
+    linkDetectionEl.textContent = "Link saved, but we don't recognize this platform yet.";
+  } else {
+    linkDetectionEl.textContent = `Detected: ${platform} link.`;
+  }
+  linkDetectionEl.hidden = false;
+}
+
 function applyResults(data) {
   summaryEl.textContent = data.summary || "";
   fillList(decisionsEl, data.decisions);
@@ -127,7 +163,7 @@ function handleSave() {
   const draft = {
     savedAt: new Date().toISOString(),
     transcript: transcriptField.value,
-    meetingLink: document.getElementById("meeting-link").value,
+    meetingLink: meetingLinkField.value,
     preferences: getPreferences(),
     results: {
       summary: summaryEl.textContent,
@@ -154,7 +190,7 @@ function restoreSavedDraft() {
   }
 
   transcriptField.value = draft.transcript || "";
-  document.getElementById("meeting-link").value = draft.meetingLink || "";
+  meetingLinkField.value = draft.meetingLink || "";
   if (draft.preferences) {
     toneField.value = draft.preferences.tone || toneField.value;
     lengthField.value = draft.preferences.length || lengthField.value;
@@ -176,5 +212,8 @@ toneField.addEventListener("change", savePreferences);
 lengthField.addEventListener("change", savePreferences);
 formalityField.addEventListener("change", savePreferences);
 
+meetingLinkField.addEventListener("input", handleLinkInput);
+
 restorePreferences();
 restoreSavedDraft();
+handleLinkInput();
