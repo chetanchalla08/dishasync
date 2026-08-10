@@ -85,6 +85,13 @@ select {
   background: #fff;
 }
 
+input[type="file"] {
+  display: block;
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
 textarea {
   resize: vertical;
 }

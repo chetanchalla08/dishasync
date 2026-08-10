@@ -13,6 +13,7 @@ const transcriptField = document.getElementById("transcript");
 const resultsSection = document.getElementById("results");
 const meetingLinkField = document.getElementById("meeting-link");
 const linkDetectionEl = document.getElementById("link-detection");
+const transcriptFileInput = document.getElementById("transcript-file");
 
 const toneField = document.getElementById("tone");
 const lengthField = document.getElementById("length");
@@ -104,6 +105,44 @@ function handleLinkInput() {
     linkDetectionEl.textContent = `Detected: ${platform} link.`;
   }
   linkDetectionEl.hidden = false;
+}
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+const ALLOWED_FILE_EXTENSIONS = [".txt", ".md"];
+
+function handleFileUpload() {
+  const file = transcriptFileInput.files[0];
+  if (!file) return;
+
+  const hasAllowedExtension = ALLOWED_FILE_EXTENSIONS.some((ext) =>
+    file.name.toLowerCase().endsWith(ext)
+  );
+
+  if (!hasAllowedExtension) {
+    showStatus("Please upload a .txt or .md file — other formats aren't supported yet.", true);
+    transcriptFileInput.value = "";
+    return;
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    showStatus("That file is too large (max 2MB).", true);
+    transcriptFileInput.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    transcriptField.value = reader.result;
+    showStatus(`Loaded "${file.name}" (${reader.result.length.toLocaleString()} characters) into the transcript box.`);
+  };
+
+  reader.onerror = () => {
+    showStatus("Couldn't read that file — try pasting the transcript instead.", true);
+  };
+
+  reader.readAsText(file);
+  transcriptFileInput.value = "";
 }
 
 function applyResults(data) {
@@ -213,6 +252,7 @@ lengthField.addEventListener("change", savePreferences);
 formalityField.addEventListener("change", savePreferences);
 
 meetingLinkField.addEventListener("input", handleLinkInput);
+transcriptFileInput.addEventListener("change", handleFileUpload);
 
 restorePreferences();
 restoreSavedDraft();
