@@ -15,6 +15,11 @@ const meetingLinkField = document.getElementById("meeting-link");
 const linkDetectionEl = document.getElementById("link-detection");
 const transcriptFileInput = document.getElementById("transcript-file");
 
+const outlookStatusEl = document.getElementById("outlook-status");
+const outlookConnectBtn = document.getElementById("outlook-connect-btn");
+const outlookDisconnectBtn = document.getElementById("outlook-disconnect-btn");
+const outlookDraftBtn = document.getElementById("outlook-draft-btn");
+
 const toneField = document.getElementById("tone");
 const lengthField = document.getElementById("length");
 const formalityField = document.getElementById("formality");
@@ -145,6 +150,65 @@ function handleFileUpload() {
   transcriptFileInput.value = "";
 }
 
+async function refreshOutlookStatus() {
+  try {
+    const response = await fetch("/api/auth/status");
+    const status = await response.json();
+
+    if (!status.configured) {
+      outlookStatusEl.textContent = "Outlook integration isn't set up yet.";
+      outlookConnectBtn.hidden = true;
+      outlookDisconnectBtn.hidden = true;
+      outlookDraftBtn.hidden = true;
+      return;
+    }
+
+    if (status.signedIn) {
+      outlookStatusEl.textContent = `Connected as ${status.account}.`;
+      outlookConnectBtn.hidden = true;
+      outlookDisconnectBtn.hidden = false;
+      outlookDraftBtn.hidden = false;
+    } else {
+      outlookStatusEl.textContent = "Not connected.";
+      outlookConnectBtn.hidden = false;
+      outlookDisconnectBtn.hidden = true;
+      outlookDraftBtn.hidden = true;
+    }
+  } catch {
+    outlookStatusEl.textContent = "Couldn't check Outlook connection status.";
+  }
+}
+
+async function handleDisconnectOutlook() {
+  await fetch("/auth/logout");
+  refreshOutlookStatus();
+}
+
+async function handleCreateOutlookDraft() {
+  outlookDraftBtn.disabled = true;
+  showSaveStatus("Creating draft in Outlook...");
+
+  try {
+    const response = await fetch("/api/create-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: emailEl.value }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Something went wrong.");
+    }
+
+    showSaveStatus("Draft created in your Outlook Drafts folder.");
+  } catch (err) {
+    showSaveStatus(err.message);
+  } finally {
+    outlookDraftBtn.disabled = false;
+  }
+}
+
 function applyResults(data) {
   summaryEl.textContent = data.summary || "";
   fillList(decisionsEl, data.decisions);
@@ -254,6 +318,10 @@ formalityField.addEventListener("change", savePreferences);
 meetingLinkField.addEventListener("input", handleLinkInput);
 transcriptFileInput.addEventListener("change", handleFileUpload);
 
+outlookDisconnectBtn.addEventListener("click", handleDisconnectOutlook);
+outlookDraftBtn.addEventListener("click", handleCreateOutlookDraft);
+
 restorePreferences();
 restoreSavedDraft();
 handleLinkInput();
+refreshOutlookStatus();

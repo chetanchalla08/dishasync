@@ -14,6 +14,13 @@
 
   <main class="app-shell">
     <section class="card">
+      <h2>Outlook</h2>
+      <p id="outlook-status" class="hint">Checking connection status...</p>
+      <a id="outlook-connect-btn" href="/auth/login" class="btn-secondary" hidden>Connect Outlook</a>
+      <button id="outlook-disconnect-btn" type="button" class="btn-secondary" hidden>Disconnect</button>
+    </section>
+
+    <section class="card">
       <h2>1. Meeting Input</h2>
 
       <label for="meeting-link">Meeting link <span class="hint">(optional)</span></label>
@@ -97,6 +104,7 @@
         <button id="copy-btn" type="button" class="btn-secondary">Copy</button>
         <button id="save-btn" type="button" class="btn-secondary">Save Draft Locally</button>
         <button id="regenerate-btn" type="button" class="btn-secondary">Regenerate</button>
+        <button id="outlook-draft-btn" type="button" class="btn-secondary" hidden>Create Draft in Outlook</button>
       </div>
 
       <p id="save-status" class="status-message" hidden></p>

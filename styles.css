@@ -13,6 +13,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
@@ -170,12 +174,18 @@ button:disabled {
 }
 
 .btn-secondary {
+  display: inline-block;
   align-self: auto;
   background: #fff;
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
+  border-radius: 6px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .btn-secondary:hover {
